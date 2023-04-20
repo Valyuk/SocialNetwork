@@ -15,14 +15,13 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "state";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
-import { Email } from "@mui/icons-material";
 
 const registerSchema = yup.object().shape({
     firstName: yup.string().required("required"),
     lasName: yup.string().required("required"),
     email: yup.string().email("invalid email").required("required"),
     password: yup.string().required("required"),
-    locarion: yup.string().required("required"),
+    location: yup.string().required("required"),
     occupation: yup.string().required("required"),
     picture: yup.string().required("required"),
 })
@@ -63,8 +62,7 @@ const Form = () => {
         }
         formData.append('picturePath', values.picture.name);
 
-        const savedUserResponse = await fetch(
-            "http://localhost:3001/auth/register",
+        const savedUserResponse = await fetch("http://localhost:3001/auth/register",
             {
                 method: "POST",
                 body: formData,
@@ -79,12 +77,28 @@ const Form = () => {
     };
 
     const login = async (values, onSubmitProps) => {
-        
+        const loggedInResponse = await fetch("http://localhost:3001/auth/login", 
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(values),
+        });
+        const loggedIn = await loggedInResponse.json();
+        onSubmitProps.resetForm();
+        if (loggedIn) {
+            dispatch(
+                setLogin({
+                    user: loggedIn.user,
+                    token: loggedIn.token,
+                })
+            );
+            navigate("/home");
+        }
     }
 
     const handleFormSubmit = async(values, onSubmitProps) => {
-        if (isLogin) await login(values,onSubmitProps);
-        if (isRegister) await registerSchema(values, onSubmitProps);
+        if (isLogin) {await login(values, onSubmitProps)}
+        if (isRegister){await register(values, onSubmitProps)}
     }; 
 
     return (
