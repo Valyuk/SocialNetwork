@@ -47,7 +47,7 @@ const initialValuesLogin = {
 }
 
 const Form = () => {
-    const [pageType, setPageType] = useState("login");
+    const [pageType, setPageType] = useState(" ");
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -56,24 +56,29 @@ const Form = () => {
     const isRegister = pageType === "register";
 
     const register = async (values, onSubmitProps) => {
-        const formData = new FormData();
-        for (let value in values) {
-            formData.append(value, values[value])
-        }
-        formData.append('picturePath', values.picture.name);
-
-        const savedUserResponse = await fetch("http://localhost:3001/auth/register",
-            {
-                method: "POST",
-                body: formData,
+        try {const formData = new FormData();
+            for (let value in values) {
+                formData.append(value, values[value])
             }
-        );
-        const savedUser = await savedUserResponse.json();
-        onSubmitProps.resetForm();
-
-        if(savedUser) {
-            setPageType("login");
+            formData.append('picturePath', values.picture.name);
+    
+            const savedUserResponse = await fetch(
+                "http://localhost:3001/auth/register",
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+            const savedUser = await savedUserResponse.json();
+            onSubmitProps.resetForm();
+    
+            if(savedUser) {
+                setPageType("login");
+            }
+        } catch{
+            console.log(error)
         }
+        
     };
 
     const login = async (values, onSubmitProps) => {
@@ -96,9 +101,10 @@ const Form = () => {
         }
     }
 
-    const handleFormSubmit = async(values, onSubmitProps) => {
-        if (isLogin) {await login(values, onSubmitProps)}
-        if (isRegister){await register(values, onSubmitProps)}
+    const handleFormSubmit = async (values, onSubmitProps) => {
+        if (isRegister) await register(values, onSubmitProps)
+        if (isLogin) await login(values, onSubmitProps)
+        await console.log(isRegister)
     }; 
 
     return (
@@ -216,6 +222,7 @@ const Form = () => {
                                 />
                                 <TextField 
                                     label="Password"
+                                    type="password"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
                                     value={values.password}
